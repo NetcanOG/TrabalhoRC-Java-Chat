@@ -6,7 +6,7 @@ import java.nio.charset.*;
 import java.util.*;
 
 public class Client{
-  Socket sc;
+  Socket s;
   String room;
   State s;
   String nick = null;
