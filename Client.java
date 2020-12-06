@@ -9,6 +9,7 @@ public class Client{
   Socket sc;
   String room;
   State s;
+  String nick;
 
   public Client(Socket sc){
     sc = this.sc;
@@ -30,6 +31,10 @@ public class Client{
   }
 
   public void setRoom(String room){
-    room = this.room;
+    this.room = room; 
+  }
+
+  public void setNick(String nick){
+    this.nick = nick;
   }
 }
