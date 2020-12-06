@@ -134,10 +134,11 @@ public class ChatServer
       return false;
     }
 
-    /*
     for(Client curClient: clients){
+      if(curClient.room == null){
+        curClient.s.write(charset.encode(message+"\n"));
+      }
     }
-    */
 
     // Decode and print the message to stdout
     String message = decoder.decode(buffer).toString();
