@@ -8,7 +8,7 @@ import java.util.*;
 public class Client{
   Socket s;
   String room;
-  State s;
+  State st;
   String nick = null;
 
   public Client(Socket sc){
@@ -31,7 +31,7 @@ public class Client{
   }
 
   public void setRoom(String room){
-    this.room = room; 
+    this.room = room;
   }
 
   public void setNick(String nick){
