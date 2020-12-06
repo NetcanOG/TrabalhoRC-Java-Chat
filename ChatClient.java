@@ -1,4 +1,7 @@
 import java.io.*;
+import java.nio.*;
+import java.nio.channels.*;
+import java.nio.charset.*;
 import java.net.*;
 import java.util.*;
 import java.awt.*;
@@ -20,6 +23,8 @@ public class ChatClient{
     // Decoder for incoming text -- assume UTF-8
     static private final Charset charset = Charset.forName("UTF8");
     static private final CharsetDecoder decoder = charset.newDecoder();
+    static private final ByteBuffer bufferRead = ByteBuffer.allocate( 16384 );
+    static private final ByteBuffer bufferWrite = ByteBuffer.allocate( 16384 );
     int port;
     String server;
 
@@ -63,24 +68,26 @@ public class ChatClient{
         });
 
         // --- Fim da inicialização da interface gráfica
-         port = this.port;
-         server = this.server;
+         //port = this.port;
+         //server = this.server;
          ReadThread read = new ReadThread();
          WriteThread write = new WriteThread();
+
+         SocketChannel socket;
+         InetSocketAddress scAddr = new InetSocketAddress(server,port);
+         socket = SocketChannel.open(scAddr);
         // Se for necessário adicionar código de inicialização ao
         // construtor, deve ser colocado aqui
 
     }
 
     public class ReadThread implements Runnable{
-      static private final ByteBuffer bufferRead = ByteBuffer.allocate( 16384 );
       public void run(){
-        
+
       }
     }
 
     public class WriteThread implements Runnable{
-      static private final ByteBuffer bufferWrite = ByteBuffer.allocate( 16384 );
       public void run(){
 
       }
