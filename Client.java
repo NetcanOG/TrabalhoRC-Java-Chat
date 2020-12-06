@@ -1,9 +1,16 @@
+import java.io.*;
+import java.net.*;
+import java.nio.*;
+import java.nio.channels.*;
+import java.nio.charset.*;
+import java.util.*;
+
 public class Client{
   Socket sc;
   String room;
   State s;
 
-  public client(Socket sc,){
+  public Client(Socket sc){
     sc = this.sc;
   }
 
@@ -13,12 +20,16 @@ public class Client{
     INSIDE
   }
 
-  public setState(int i){
+  public void setState(int i){
     switch(i){
-      case 1: this.s = INIT;break;
-      case 2: this.s = OUTSIDE;break;
-      case 3: this.s = INSIDE;break;
-      default: ("error state.Restart conection!");
+      case 1: this.s = State.INIT;break;
+      case 2: this.s = State.OUTSIDE;break;
+      case 3: this.s = State.INSIDE;break;
+      default: System.err.println("error state.Restart conection!");
     }
+  }
+
+  public void setRoom(String room){
+    room = this.room;
   }
 }
