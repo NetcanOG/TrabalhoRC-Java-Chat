@@ -14,6 +14,7 @@ public class ChatServer
   static private final Charset charset = Charset.forName("UTF8");
   static private final CharsetDecoder decoder = charset.newDecoder();
 
+  List<Client> clients = new ArrayList<Client>();
 
   static public void main( String args[] ) throws Exception {
     // Parse port from command line
@@ -120,7 +121,6 @@ public class ChatServer
       System.err.println( ie );
     }
   }
-
 
   // Just read the message from the socket and send it to stdout
   static private boolean processInput( SocketChannel sc ) throws IOException {

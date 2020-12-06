@@ -28,4 +28,8 @@ public class Client{
       default: System.err.println("error state.Restart conection!");
     }
   }
+
+  public void setRoom(String room){
+    room = this.room;
+  }
 }
