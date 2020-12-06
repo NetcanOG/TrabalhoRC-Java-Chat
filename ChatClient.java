@@ -103,8 +103,12 @@ public class ChatClient{
     // na caixa de entrada
     public void newMessage(String message) throws IOException {
       // PREENCHER AQUI com código que envia a mensagem ao servidor
+      
+      bufferWrite.clear();
+      socket.write(charset.encode(message+"\n"));
+      
       /*try {
-
+        
 
       } catch( IOException ie ) {
         System.err.println( ie );
@@ -118,7 +122,7 @@ public class ChatClient{
       /*try {
         read.run();
         write.run();
-
+        
 
       } catch( IOException ie ) {
         System.err.println( ie );
