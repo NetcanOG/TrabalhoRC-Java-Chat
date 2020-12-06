@@ -6,7 +6,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 
-public class ChatClient {
+public class ChatClient{
 
     // Variáveis relacionadas com a interface gráfica --- * NÃO MODIFICAR *
     JFrame frame = new JFrame("Chat Client");
@@ -17,16 +17,19 @@ public class ChatClient {
     // Se for necessário adicionar variáveis ao objecto ChatClient, devem
     // ser colocadas aqui
 
+    // Decoder for incoming text -- assume UTF-8
+    static private final Charset charset = Charset.forName("UTF8");
+    static private final CharsetDecoder decoder = charset.newDecoder();
+    int port;
+    String server;
 
-
-    
     // Método a usar para acrescentar uma string à caixa de texto
     // * NÃO MODIFICAR *
     public void printMessage(final String message) {
         chatArea.append(message);
     }
 
-    
+
     // Construtor
     public ChatClient(String server, int port) throws IOException {
 
@@ -58,34 +61,59 @@ public class ChatClient {
                 chatBox.requestFocus();
             }
         });
-        // --- Fim da inicialização da interface gráfica
 
+        // --- Fim da inicialização da interface gráfica
+         port = this.port;
+         server = this.server;
+         ReadThread read = new ReadThread();
+         WriteThread write = new WriteThread();
         // Se for necessário adicionar código de inicialização ao
         // construtor, deve ser colocado aqui
 
-
-
     }
 
+    public class ReadThread implements Runnable{
+      static private final ByteBuffer bufferRead = ByteBuffer.allocate( 16384 );
+      public void run(){
+        
+      }
+    }
+
+    public class WriteThread implements Runnable{
+      static private final ByteBuffer bufferWrite = ByteBuffer.allocate( 16384 );
+      public void run(){
+
+      }
+    }
 
     // Método invocado sempre que o utilizador insere uma mensagem
     // na caixa de entrada
     public void newMessage(String message) throws IOException {
-        // PREENCHER AQUI com código que envia a mensagem ao servidor
+      // PREENCHER AQUI com código que envia a mensagem ao servidor
+      try {
 
 
-
+      } catch( IOException ie ) {
+        System.err.println( ie );
+      }
     }
 
-    
+
     // Método principal do objecto
     public void run() throws IOException {
-        // PREENCHER AQUI
+      // PREENCHER AQUI
+      try {
+        read.run();
+        write.run();
 
+
+      } catch( IOException ie ) {
+        System.err.println( ie );
+    }
 
 
     }
-    
+
 
     // Instancia o ChatClient e arranca-o invocando o seu método run()
     // * NÃO MODIFICAR *
