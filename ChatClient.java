@@ -29,6 +29,8 @@ public class ChatClient{
     String server;
     ReadThread read;
     WriteThread write;
+    SocketChannel socket;
+    InetSocketAddress scAddr;
 
     // Método a usar para acrescentar uma string à caixa de texto
     // * NÃO MODIFICAR *
@@ -72,11 +74,13 @@ public class ChatClient{
         // --- Fim da inicialização da interface gráfica
          //port = this.port;
          //server = this.server;
+
+         //create Threads to read and write text from server 
          read = new ReadThread();
          write = new WriteThread();
 
-         SocketChannel socket;
-         InetSocketAddress scAddr = new InetSocketAddress(server,port);
+         //connect socket to ChatServer
+         scAddr = new InetSocketAddress(server,port);
          socket = SocketChannel.open(scAddr);
         // Se for necessário adicionar código de inicialização ao
         // construtor, deve ser colocado aqui
