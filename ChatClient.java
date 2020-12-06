@@ -27,6 +27,8 @@ public class ChatClient{
     static private final ByteBuffer bufferWrite = ByteBuffer.allocate( 16384 );
     int port;
     String server;
+    ReadThread read;
+    WriteThread write;
 
     // Método a usar para acrescentar uma string à caixa de texto
     // * NÃO MODIFICAR *
@@ -70,8 +72,8 @@ public class ChatClient{
         // --- Fim da inicialização da interface gráfica
          //port = this.port;
          //server = this.server;
-         ReadThread read = new ReadThread();
-         WriteThread write = new WriteThread();
+         read = new ReadThread();
+         write = new WriteThread();
 
          SocketChannel socket;
          InetSocketAddress scAddr = new InetSocketAddress(server,port);
@@ -97,26 +99,26 @@ public class ChatClient{
     // na caixa de entrada
     public void newMessage(String message) throws IOException {
       // PREENCHER AQUI com código que envia a mensagem ao servidor
-      try {
+      /*try {
 
 
       } catch( IOException ie ) {
         System.err.println( ie );
-      }
+      }*/
     }
 
 
     // Método principal do objecto
     public void run() throws IOException {
       // PREENCHER AQUI
-      try {
+      /*try {
         read.run();
         write.run();
 
 
       } catch( IOException ie ) {
         System.err.println( ie );
-    }
+    }*/
 
 
     }
