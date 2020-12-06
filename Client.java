@@ -20,11 +20,11 @@ public class Client{
     INSIDE
   }
 
-  public void setState(int i){
-    switch(i){
-      case 1: this.s = State.INIT;break;
-      case 2: this.s = State.OUTSIDE;break;
-      case 3: this.s = State.INSIDE;break;
+  public void setState(String state){
+    switch(state){
+      case "INIT": this.s = State.INIT;break;
+      case "OUTSIDE": this.s = State.OUTSIDE;break;
+      case "INSIDE": this.s = State.INSIDE;break;
       default: System.err.println("error state.Restart conection!");
     }
   }
