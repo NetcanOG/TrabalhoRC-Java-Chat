@@ -7,7 +7,7 @@ import java.util.*;
 
 public class Client{
   Socket s;
-  String room;
+  String room = null;
   State st;
   String nick = null;
 
