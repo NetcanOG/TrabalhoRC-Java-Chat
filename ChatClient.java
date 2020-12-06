@@ -75,7 +75,7 @@ public class ChatClient{
          //port = this.port;
          //server = this.server;
 
-         //create Threads to read and write text from server 
+         //create Threads to read and write text from server
          read = new ReadThread();
          write = new WriteThread();
 
@@ -103,16 +103,12 @@ public class ChatClient{
     // na caixa de entrada
     public void newMessage(String message) throws IOException {
       // PREENCHER AQUI com código que envia a mensagem ao servidor
-      
-      bufferWrite.clear();
-      socket.write(charset.encode(message+"\n"));
-      
-      /*try {
-        
-
+      try {
+        bufferWrite.clear();
+        socket.write(charset.encode(message+"\n"));
       } catch( IOException ie ) {
         System.err.println( ie );
-      }*/
+      }
     }
 
 
@@ -122,7 +118,7 @@ public class ChatClient{
       /*try {
         read.run();
         write.run();
-        
+
 
       } catch( IOException ie ) {
         System.err.println( ie );
