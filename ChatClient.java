@@ -24,8 +24,9 @@ public class ChatClient{
     static private final Charset charset = Charset.forName("UTF8");
     static private final CharsetDecoder decoder = charset.newDecoder();
     static private final CharsetEncoder encoder = charset.newEncoder();
-    static private final ByteBuffer bufferRead = ByteBuffer.allocate( 16384 );
-    static private final ByteBuffer bufferWrite = ByteBuffer.allocate( 16384 );
+    static private ByteBuffer bufferRead = ByteBuffer.allocate( 16384 );
+    static private ByteBuffer bufferWrite = ByteBuffer.allocate( 16384 );
+    static private CharBuffer buff = bufferWrite.asCharBuffer();
     int port;
     String server;
     ReadThread read;
@@ -94,7 +95,10 @@ public class ChatClient{
           bufferRead.clear();
           sc.read(bufferRead);
           String message = decoder.decode(bufferRead).toString();
-          printMessage(message);
+          String[] bufferMessages = message.split("\n", 2); 
+          String tempmessage = bufferMessages[0];
+          printMessage(tempmessage+"\n");
+          bufferRead.flip();
         }
         catch( IOException ie ) {
           System.err.println( ie );
@@ -114,8 +118,8 @@ public class ChatClient{
       // PREENCHER AQUI com código que envia a mensagem ao servidor
       try {
         bufferWrite.clear();
-        CharBuffer buff = bufferWrite.asCharBuffer();
-        buff.put(message+"\n");
+        buff.clear();
+        buff.put(message);
         sc.write(bufferWrite);
         buff.flip();
       } catch( IOException ie ) {

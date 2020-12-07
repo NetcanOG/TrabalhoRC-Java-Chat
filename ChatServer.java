@@ -138,9 +138,6 @@ public class ChatServer
 
     // Decode and print the message to stdout
     String message = decoder.decode(buffer).toString();
-    System.out.println( "Connected to "+sc.socket() );
-    System.out.println(buffer);
-
 
     for(Client curClient: clients){
       if(curClient.room == null){
