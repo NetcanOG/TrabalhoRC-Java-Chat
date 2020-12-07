@@ -120,7 +120,7 @@ public class ChatClient{
       try {
         bufferWrite.clear();
         buff.clear();
-        buff.put(message);
+        buff.put(message+"\n");
         sc.write(bufferWrite);
         buff.flip();
       } catch( IOException ie ) {

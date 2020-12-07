@@ -139,10 +139,11 @@ public class ChatServer
 
     // Decode and print the message to stdout
     String message = decoder.decode(buffer).toString();
+    System.out.println(message);
 
     for(Client curClient: clients){
       if(curClient.room == null){
-        curClient.s.getChannel().write(charset.encode(message+"\n"));
+        curClient.s.getChannel().write(charset.encode(message));
       }
     }
 
