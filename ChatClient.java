@@ -23,13 +23,14 @@ public class ChatClient{
     // Decoder for incoming text -- assume UTF-8
     static private final Charset charset = Charset.forName("UTF8");
     static private final CharsetDecoder decoder = charset.newDecoder();
+    static private final CharsetEncoder encoder = charset.newEncoder();
     static private final ByteBuffer bufferRead = ByteBuffer.allocate( 16384 );
     static private final ByteBuffer bufferWrite = ByteBuffer.allocate( 16384 );
     int port;
     String server;
     ReadThread read;
     WriteThread write;
-    SocketChannel socket;
+    SocketChannel sc;
     InetSocketAddress scAddr;
 
     // Método a usar para acrescentar uma string à caixa de texto
@@ -81,7 +82,7 @@ public class ChatClient{
 
          //connect socket to ChatServer
          scAddr = new InetSocketAddress(server,port);
-         socket = SocketChannel.open(scAddr);
+         sc = SocketChannel.open(scAddr);
         // Se for necessário adicionar código de inicialização ao
         // construtor, deve ser colocado aqui
 
@@ -89,7 +90,15 @@ public class ChatClient{
 
     public class ReadThread implements Runnable{
       public void run(){
-
+        try{
+          bufferRead.clear();
+          sc.read(bufferRead);
+          String message = decoder.decode(bufferRead).toString();
+          printMessage(message);
+        }
+        catch( IOException ie ) {
+          System.err.println( ie );
+        }
       }
     }
 
@@ -105,7 +114,10 @@ public class ChatClient{
       // PREENCHER AQUI com código que envia a mensagem ao servidor
       try {
         bufferWrite.clear();
-        socket.write(charset.encode(message+"\n"));
+        CharBuffer buff = bufferWrite.asCharBuffer();
+        buff.put(message+"\n");
+        sc.write(bufferWrite);
+        buff.flip();
       } catch( IOException ie ) {
         System.err.println( ie );
       }
@@ -115,18 +127,17 @@ public class ChatClient{
     // Método principal do objecto
     public void run() throws IOException {
       // PREENCHER AQUI
-      /*try {
-        read.run();
-        write.run();
-
-
-      } catch( IOException ie ) {
-        System.err.println( ie );
-    }*/
-
-
-    }
-
+     // try {
+        while(true){
+          read.run();
+          write.run();
+        }
+     // } catch( IOException ie ) {
+      //  System.err.println( ie );
+    //}
+    
+  }
+  
 
     // Instancia o ChatClient e arranca-o invocando o seu método run()
     // * NÃO MODIFICAR *
