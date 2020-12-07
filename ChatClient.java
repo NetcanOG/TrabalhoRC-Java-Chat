@@ -94,14 +94,12 @@ public class ChatClient{
         try{
           bufferRead.clear();
           sc.read(bufferRead);
+          bufferRead.flip();
           String message = decoder.decode(bufferRead).toString();
-          String[] bufferMessages = message.split("\n", 2); 
+          String[] bufferMessages = message.split("\n", 2);
           String tempmessage = bufferMessages[0].trim();
           printMessage(tempmessage+"\n");
           System.out.println(tempmessage);
-          //char[] chars = tempmessage.toCharArray();
-          //System.out.println(chars[0]);
-          bufferRead.flip();
         }
         catch( IOException ie ) {
           System.err.println( ie );
@@ -142,9 +140,9 @@ public class ChatClient{
      // } catch( IOException ie ) {
       //  System.err.println( ie );
     //}
-    
+
   }
-  
+
 
     // Instancia o ChatClient e arranca-o invocando o seu método run()
     // * NÃO MODIFICAR *

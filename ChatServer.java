@@ -95,6 +95,7 @@ public class ChatServer
                 Socket s = null;
                 try {
                   s = sc.socket();
+                  remove_user(s);
                   System.out.println( "Closing connection to "+s );
                   s.close();
                 } catch( IOException ie ) {
@@ -148,5 +149,11 @@ public class ChatServer
 
     return true;
   }
+  static private void remove_user( Socket socket ){
+    Iterator<Client> itr = clients.iterator();
+    while(itr.hasNext()){
+      Client c = itr.next();
+      if(c.s.equals(socket)) itr.remove();
+    }
+  }
 }
-
