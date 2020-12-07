@@ -11,8 +11,8 @@ public class Client{
   State st;
   String nick = null;
 
-  public Client(Socket sc){
-    sc = this.sc;
+  public Client(Socket s){
+    this.s = s; 
   }
 
   public enum State{
@@ -23,9 +23,9 @@ public class Client{
 
   public void setState(String state){
     switch(state){
-      case "INIT": this.s = State.INIT;break;
-      case "OUTSIDE": this.s = State.OUTSIDE;break;
-      case "INSIDE": this.s = State.INSIDE;break;
+      case "INIT": this.st = State.INIT;break;
+      case "OUTSIDE": this.st = State.OUTSIDE;break;
+      case "INSIDE": this.st = State.INSIDE;break;
       default: System.err.println("error state.Restart conection!");
     }
   }

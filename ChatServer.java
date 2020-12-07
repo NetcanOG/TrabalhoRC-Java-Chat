@@ -14,7 +14,7 @@ public class ChatServer
   static private final Charset charset = Charset.forName("UTF8");
   static private final CharsetDecoder decoder = charset.newDecoder();
 
-  List<Client> clients = new ArrayList<Client>();
+  static List<Client> clients = new ArrayList<Client>();
 
   static public void main( String args[] ) throws Exception {
     // Parse port from command line
@@ -65,6 +65,8 @@ public class ChatServer
             // It's an incoming connection.  Register this socket with
             // the Selector so we can listen for input on it
             Socket s = ss.accept();
+            Client tempClient = new Client(s);
+            clients.add(tempClient);
             System.out.println( "Got connection from "+s );
 
             // Make sure to make it non-blocking, so we can use a selector
@@ -134,15 +136,17 @@ public class ChatServer
       return false;
     }
 
+    // Decode and print the message to stdout
+    String message = decoder.decode(buffer).toString();
+
     for(Client curClient: clients){
+      System.out.println("arrived for");
       if(curClient.room == null){
-        curClient.s.write(charset.encode(message+"\n"));
+        System.out.println("arrived if");
+        curClient.s.getChannel().write(charset.encode(message+"\n"));
       }
     }
 
-    // Decode and print the message to stdout
-    String message = decoder.decode(buffer).toString();
-    System.out.print( message );
 
     return true;
   }
