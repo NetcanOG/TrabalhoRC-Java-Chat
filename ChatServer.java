@@ -11,7 +11,7 @@ public class ChatServer
   static private final ByteBuffer buffer = ByteBuffer.allocate( 16384 );
 
   // Decoder for incoming text -- assume UTF-16
-  static private final Charset charset = Charset.forName("UTF16");
+  static private final Charset charset = Charset.forName("UTF8");
   static private final CharsetDecoder decoder = charset.newDecoder();
 
   static List<Client> clients = new ArrayList<Client>();
@@ -109,6 +109,8 @@ public class ChatServer
               key.cancel();
 
               try {
+                Socket s = sc.socket();
+                remove_user(s);
                 sc.close();
               } catch( IOException ie2 ) { System.out.println( ie2 ); }
 
