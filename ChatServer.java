@@ -162,8 +162,6 @@ public class ChatServer
           user.s.getChannel().write(charset.encode("OK"));
           user.setState("OUTSIDE");
           user.nick = words[1];
-          System.out.println("user name:"+user.nick);
-
         }
         else if(user.state.equals("INIT") && !nickAvailable(words[1])){
           user.s.getChannel().write(charset.encode("ERROR"));
@@ -191,7 +189,28 @@ public class ChatServer
           user.s.getChannel().write(charset.encode("ERROR"));
         }
         break;
-      case "/join": break;
+      case "/join":
+        if(user.state.equals("OUTSIDE")){
+          user.room = words[1];
+          for(Client otherUsr: clients){
+            if(otherUsr.room == user.room){ //inside same room
+              otherUsr.s.getChannel().write(charset.encode("JOINED "+ user.nick));
+            }
+          }
+        }
+        else if(user.state.equals("INSIDE")){
+          user.s.getChannel().write(charset.encode("OK"));
+          for(Client otherUsr: clients){
+            if(otherUsr.room == user.room){ //users inside old room
+              otherUsr.s.getChannel().write(charset.encode("LEFT "+ user.nick));
+            }
+            else if(otherUsr.room == words[1]){ //users inside new room
+              otherUsr.s.getChannel().write(charset.encode("JOINED "+ user.nick));
+            }
+          }
+          user.room = words[1];
+        }
+        break;
       case "/leave": break;
       case "/bye": break;
       default:
