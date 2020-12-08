@@ -27,8 +27,6 @@ public class ChatClient{
     static private ByteBuffer bufferRead = ByteBuffer.allocate( 16384 );
     static private ByteBuffer bufferWrite = ByteBuffer.allocate( 16384 );
     static private CharBuffer buff = bufferWrite.asCharBuffer();
-    int port;
-    String server;
     ReadThread read;
     WriteThread write;
     SocketChannel sc;
@@ -74,8 +72,6 @@ public class ChatClient{
         });
 
         // --- Fim da inicialização da interface gráfica
-         //port = this.port;
-         //server = this.server;
 
          //create Threads to read and write text from server
          read = new ReadThread();
@@ -99,7 +95,6 @@ public class ChatClient{
           String[] bufferMessages = message.split("\n", 2);
           String tempmessage = bufferMessages[0].trim();
           printMessage(tempmessage+"\n");
-          System.out.println(tempmessage);
         }
         catch( IOException ie ) {
           System.err.println( ie );
@@ -123,6 +118,7 @@ public class ChatClient{
         buff.put(message+"\n");
         sc.write(bufferWrite);
         buff.flip();
+        bufferWrite.flip();
       } catch( IOException ie ) {
         System.err.println( ie );
       }
