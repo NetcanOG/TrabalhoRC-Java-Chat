@@ -20,13 +20,12 @@ public class ChatClient{
     // Se for necessário adicionar variáveis ao objecto ChatClient, devem
     // ser colocadas aqui
 
-    // Decoder for incoming text -- assume UTF-8
-    static private final Charset charset = Charset.forName("UTF8");
+    // Decoder for incoming text -- assume UTF-16
+    static private final Charset charset = Charset.forName("UTF16");
     static private final CharsetDecoder decoder = charset.newDecoder();
     static private final CharsetEncoder encoder = charset.newEncoder();
     static private ByteBuffer bufferRead = ByteBuffer.allocate( 16384 );
     static private ByteBuffer bufferWrite = ByteBuffer.allocate( 16384 );
-    static private CharBuffer buff = bufferWrite.asCharBuffer();
     ReadThread read;
     WriteThread write;
     SocketChannel sc;
@@ -112,10 +111,10 @@ public class ChatClient{
       // PREENCHER AQUI com código que envia a mensagem ao servidor
       try {
         bufferWrite.clear();
-        buff.clear();
-        buff.put(message+"\n");
+        String[] strs = message.split(" ",0);
+        if(escape(strs[0]) == 1) bufferWrite.asCharBuffer().put("/"+message+"\n");
+        else bufferWrite.asCharBuffer().put(message+"\n");
         sc.write(bufferWrite);
-        buff.flip();
         bufferWrite.flip();
       } catch( IOException ie ) {
         System.err.println( ie );
@@ -126,17 +125,27 @@ public class ChatClient{
     // Método principal do objecto
     public void run() throws IOException {
       // PREENCHER AQUI
-     // try {
-        while(true){
-          read.run();
-          write.run();
-        }
-     // } catch( IOException ie ) {
+      // try {
+      while(true){
+        read.run();
+        write.run();
+      }
+      // } catch( IOException ie ) {
       //  System.err.println( ie );
-    //}
+      //}
+    }
 
-  }
-
+    static private int escape (String cmd){
+      switch(cmd){
+        case "/nick": return 0;
+        case "/join": return 0;
+        case "/leave": return 0;
+        case "/bye": return 0;
+        default:
+          if(cmd.charAt(0)=='/') return 1;  //not a command but with "/"
+          return 0;                         //string
+      }
+    }
 
     // Instancia o ChatClient e arranca-o invocando o seu método run()
     // * NÃO MODIFICAR *

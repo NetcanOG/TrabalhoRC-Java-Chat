@@ -10,8 +10,8 @@ public class ChatServer
   // A pre-allocated buffer for the received data
   static private final ByteBuffer buffer = ByteBuffer.allocate( 16384 );
 
-  // Decoder for incoming text -- assume UTF-8
-  static private final Charset charset = Charset.forName("UTF8");
+  // Decoder for incoming text -- assume UTF-16
+  static private final Charset charset = Charset.forName("UTF16");
   static private final CharsetDecoder decoder = charset.newDecoder();
 
   static List<Client> clients = new ArrayList<Client>();
@@ -137,20 +137,90 @@ public class ChatServer
       return false;
     }
 
-    // Decode and print the message to stdout
+    // Decode and print the message
     String message = decoder.decode(buffer).toString();
-    String[] bufferMessages = message.split("\n", 2);
+    String[] bufferMessages = message.split("\n", 0);
     String tempmessage = bufferMessages[0].trim();
-    System.out.print(message);
 
-    for(Client curClient: clients){
-      if(curClient.room == null){
-        curClient.s.getChannel().write(charset.encode(tempmessage));
-      }
-    }
-    
+    System.out.println(tempmessage);
+
+    Client user = getUser(sc.socket());
+    if(user != null) processString(tempmessage,user);
+
     return true;
   }
+  static void processString(String text, Client user) throws IOException{
+    String[] words = text.split(" ", 0);
+    String fstWord = words[0].trim();
+
+    switch(fstWord){
+      case "/nick":
+        if(user.state == "INIT" && nickAvailable(words[1].trim())){
+          user.s.getChannel().write(charset.encode("OK"));
+          user.setState("OUTSIDE");
+          user.nick = words[1].trim();
+          System.out.println("user name:"+user.nick);
+        }
+        else if(user.state == "INIT" && !nickAvailable(words[1].trim())){
+          user.s.getChannel().write(charset.encode("ERROR"));
+        }
+        else if(user.state == "OUTSIDE" && nickAvailable(words[1].trim())){
+          user.s.getChannel().write(charset.encode("OK"));
+          user.nick = words[1].trim();
+        }
+        else if(user.state == "OUTSIDE" && !nickAvailable(words[1].trim())){
+          user.s.getChannel().write(charset.encode("ERROR"));
+        }
+        else if(user.state == "INSIDE" && nickAvailable(words[1].trim())){
+          user.s.getChannel().write(charset.encode("OK"));
+          for(Client otherUsr: clients){
+            if(otherUsr.room == user.room){ //inside same room
+              otherUsr.s.getChannel().write(charset.encode("NEWNICK "+ user.nick+" "+words[1].trim()));
+            }
+          }
+          user.nick = words[1].trim();
+        }
+        else if(user.state == "INSIDE" && !nickAvailable(words[1].trim())){
+          user.s.getChannel().write(charset.encode("ERROR"));
+        }
+        break;
+      case "/join": break;
+      case "/leave": break;
+      case "/bye": break;
+      default:
+        if(words[0].trim().charAt(0)=='/'){
+          for(Client curClient: clients){
+            if(curClient.room == user.room){
+              curClient.s.getChannel().write(charset.encode(text.substring(1)));
+            }
+          }
+        }
+        else{
+          for(Client curClient: clients){
+            if(curClient.room == user.room){
+              curClient.s.getChannel().write(charset.encode(text));
+            }
+          }
+        }
+        break;  //not a command but with "/"
+    }
+  }
+
+  static private boolean nickAvailable(String nickname){
+    System.out.println("nickAvailable:"+nickname);
+    for(Client curClient: clients){
+      if(curClient.nick == nickname) return false;
+    }
+    return true;
+  }
+
+  static private Client getUser( Socket s ){
+    for(Client user: clients){
+      if(user.s == s) return user;
+    }
+    return null;
+  }
+
   static private void remove_user( Socket socket ){
     Iterator<Client> itr = clients.iterator();
     while(itr.hasNext()){

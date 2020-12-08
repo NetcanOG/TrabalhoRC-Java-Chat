@@ -8,24 +8,18 @@ import java.util.*;
 public class Client{
   Socket s;
   String room = null;
-  State st;
+  String state = "INIT";
   String nick = null;
 
   public Client(Socket s){
-    this.s = s; 
-  }
-
-  public enum State{
-    INIT,
-    OUTSIDE,
-    INSIDE
+    this.s = s;
   }
 
   public void setState(String state){
     switch(state){
-      case "INIT": this.st = State.INIT;break;
-      case "OUTSIDE": this.st = State.OUTSIDE;break;
-      case "INSIDE": this.st = State.INSIDE;break;
+      case "INIT": this.state = "INIT";break;
+      case "OUTSIDE": this.state = "OUTSIDE";break;
+      case "INSIDE": this.state = "INSIDE";break;
       default: System.err.println("error state.Restart conection!");
     }
   }
