@@ -10,9 +10,10 @@ public class ChatServer
   // A pre-allocated buffer for the received data
   static private final ByteBuffer buffer = ByteBuffer.allocate( 16384 );
 
-  // Decoder for incoming text -- assume UTF-16
-  static private final Charset charset = Charset.forName("UTF16");
+  // Decoder for incoming text -- assume UTF-8
+  static private final Charset charset = Charset.forName("UTF8");
   static private final CharsetDecoder decoder = charset.newDecoder();
+  //static private final CharsetEncoder encoder = charset.newEncoder();
 
   static List<Client> clients = new ArrayList<Client>();
 

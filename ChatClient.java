@@ -21,9 +21,9 @@ public class ChatClient{
     // ser colocadas aqui
 
     // Decoder for incoming text -- assume UTF-16
-    static private final Charset charset = Charset.forName("UTF16");
+    static private final Charset charset = Charset.forName("UTF8");
     static private final CharsetDecoder decoder = charset.newDecoder();
-    static private final CharsetEncoder encoder = charset.newEncoder();
+    //static private final CharsetEncoder encoder = charset.newEncoder();
     static private ByteBuffer bufferRead = ByteBuffer.allocate( 16384 );
     static private ByteBuffer bufferWrite = ByteBuffer.allocate( 16384 );
     ReadThread read;
@@ -112,8 +112,8 @@ public class ChatClient{
       try {
         bufferWrite.clear();
         String[] strs = message.split(" ",0);
-        if(escape(strs[0]) == 1) bufferWrite.asCharBuffer().put("/"+message+"\n");
-        else bufferWrite.asCharBuffer().put(message+"\n");
+        if(escape(strs[0]) == 1) bufferWrite = charset.encode("/"+message+"\n");
+        else bufferWrite = charset.encode(message+"\n");
         sc.write(bufferWrite);
         bufferWrite.flip();
       } catch( IOException ie ) {
