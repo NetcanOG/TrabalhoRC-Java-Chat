@@ -11,7 +11,7 @@ public class ChatServer
   static private final ByteBuffer buffer = ByteBuffer.allocate( 16384 );
 
   // Decoder for incoming text -- assume UTF-16
-  static private final Charset charset = Charset.forName("UTF8");
+  static private final Charset charset = Charset.forName("UTF16");
   static private final CharsetDecoder decoder = charset.newDecoder();
 
   static List<Client> clients = new ArrayList<Client>();
@@ -197,14 +197,14 @@ public class ChatServer
         if(words[0].charAt(0)=='/'){
           for(Client curClient: clients){
             if(curClient.room == user.room){
-              curClient.s.getChannel().write(charset.encode("Message "+user.nick+" "+text.substring(1)));
+              curClient.s.getChannel().write(charset.encode("MESSAGE "+user.nick+" "+text.substring(1)));
             }
           }
         }
         else{
           for(Client curClient: clients){
             if(curClient.room == user.room){
-              curClient.s.getChannel().write(charset.encode("Message "+user.nick+" "+text));
+              curClient.s.getChannel().write(charset.encode("MESSAGE "+user.nick+" "+text));
             }
           }
         }

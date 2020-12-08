@@ -21,7 +21,7 @@ public class ChatClient{
     // ser colocadas aqui
 
     // Decoder for incoming text -- assume UTF-16
-    static private final Charset charset = Charset.forName("UTF8");
+    static private final Charset charset = Charset.forName("UTF16");
     static private final CharsetDecoder decoder = charset.newDecoder();
     static private final CharsetEncoder encoder = charset.newEncoder();
     static private ByteBuffer bufferRead = ByteBuffer.allocate( 16384 );
