@@ -92,9 +92,7 @@ public class ChatClient{
           sc.read(bufferRead);
           bufferRead.flip();
           String message = decoder.decode(bufferRead).toString();
-          String[] bufferMessages = message.split("\n", 2);
-          String tempmessage = bufferMessages[0].trim();
-          printMessage(tempmessage+"\n");
+          printMessage(message+"\n");
         }
         catch( IOException ie ) {
           System.err.println( ie );

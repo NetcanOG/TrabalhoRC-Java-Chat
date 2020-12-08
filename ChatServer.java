@@ -116,8 +116,8 @@ public class ChatServer
             }
           }
         }
-
         // We remove the selected keys, because we've dealt with them.
+        //clients.clear();
         keys.clear();
       }
     } catch( IOException ie ) {
@@ -139,15 +139,16 @@ public class ChatServer
 
     // Decode and print the message to stdout
     String message = decoder.decode(buffer).toString();
+    String[] bufferMessages = message.split("\n", 2);
+    String tempmessage = bufferMessages[0].trim();
     System.out.print(message);
 
     for(Client curClient: clients){
       if(curClient.room == null){
-        curClient.s.getChannel().write(charset.encode(message));
+        curClient.s.getChannel().write(charset.encode(tempmessage));
       }
     }
-
-
+    
     return true;
   }
   static private void remove_user( Socket socket ){
