@@ -151,36 +151,40 @@ public class ChatServer
   }
   static void processString(String text, Client user) throws IOException{
     String[] words = text.split(" ", 0);
-    String fstWord = words[0].trim();
+    String fstWord = words[0];
 
     switch(fstWord){
       case "/nick":
-        if(user.state == "INIT" && nickAvailable(words[1].trim())){
+        if(user.state.equals("INIT") && nickAvailable(words[1])){
           user.s.getChannel().write(charset.encode("OK"));
           user.setState("OUTSIDE");
-          user.nick = words[1].trim();
+          user.nick = words[1];
           System.out.println("user name:"+user.nick);
+
         }
-        else if(user.state == "INIT" && !nickAvailable(words[1].trim())){
+        else if(user.state.equals("INIT") && !nickAvailable(words[1])){
           user.s.getChannel().write(charset.encode("ERROR"));
         }
-        else if(user.state == "OUTSIDE" && nickAvailable(words[1].trim())){
+        else if(user.state.equals("OUTSIDE") && nickAvailable(words[1])){
           user.s.getChannel().write(charset.encode("OK"));
-          user.nick = words[1].trim();
+          user.nick = words[1];
         }
-        else if(user.state == "OUTSIDE" && !nickAvailable(words[1].trim())){
+        else if(user.state.equals("OUTSIDE") && !nickAvailable(words[1])){
           user.s.getChannel().write(charset.encode("ERROR"));
         }
-        else if(user.state == "INSIDE" && nickAvailable(words[1].trim())){
+        else if(user.state.equals("INSIDE") && nickAvailable(words[1])){
           user.s.getChannel().write(charset.encode("OK"));
           for(Client otherUsr: clients){
             if(otherUsr.room == user.room){ //inside same room
-              otherUsr.s.getChannel().write(charset.encode("NEWNICK "+ user.nick+" "+words[1].trim()));
+              otherUsr.s.getChannel().write(charset.encode("NEWNICK "+ user.nick+" "+words[1]));
             }
           }
-          user.nick = words[1].trim();
+          user.nick = words[1];
         }
-        else if(user.state == "INSIDE" && !nickAvailable(words[1].trim())){
+        else if(user.state.equals("INSIDE") && !nickAvailable(words[1])){
+          user.s.getChannel().write(charset.encode("ERROR"));
+        }
+        else{ // nick without argument
           user.s.getChannel().write(charset.encode("ERROR"));
         }
         break;
@@ -188,17 +192,17 @@ public class ChatServer
       case "/leave": break;
       case "/bye": break;
       default:
-        if(words[0].trim().charAt(0)=='/'){
+        if(words[0].charAt(0)=='/'){
           for(Client curClient: clients){
             if(curClient.room == user.room){
-              curClient.s.getChannel().write(charset.encode(text.substring(1)));
+              curClient.s.getChannel().write(charset.encode("Message "+user.nick+" "+text.substring(1)));
             }
           }
         }
         else{
           for(Client curClient: clients){
             if(curClient.room == user.room){
-              curClient.s.getChannel().write(charset.encode(text));
+              curClient.s.getChannel().write(charset.encode("Message "+user.nick+" "+text));
             }
           }
         }
@@ -209,7 +213,7 @@ public class ChatServer
   static private boolean nickAvailable(String nickname){
     System.out.println("nickAvailable:"+nickname);
     for(Client curClient: clients){
-      if(curClient.nick == nickname) return false;
+      if(curClient.nick.equals(nickname)) return false;
     }
     return true;
   }

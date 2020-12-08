@@ -9,7 +9,7 @@ public class Client{
   Socket s;
   String room = null;
   String state = "INIT";
-  String nick = null;
+  String nick = "empty";
 
   public Client(Socket s){
     this.s = s;
