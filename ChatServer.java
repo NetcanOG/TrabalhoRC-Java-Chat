@@ -162,6 +162,7 @@ public class ChatServer
           user.s.getChannel().write(charset.encode("OK"));
           user.setState("OUTSIDE");
           user.nick = words[1];
+          System.out.println("nn:"+user.state);
         }
         else if(user.state.equals("INIT") && !nickAvailable(words[1])){
           user.s.getChannel().write(charset.encode("ERROR"));
@@ -192,8 +193,9 @@ public class ChatServer
       case "/join":
         if(user.state.equals("OUTSIDE")){
           user.room = words[1];
+          user.s.getChannel().write(charset.encode("OK"));
           for(Client otherUsr: clients){
-            if(otherUsr.room == user.room){ //inside same room
+            if(otherUsr.room.equals(user.room) && !otherUsr.equals(user)){ //inside same room
               otherUsr.s.getChannel().write(charset.encode("JOINED "+ user.nick));
             }
           }
@@ -201,10 +203,10 @@ public class ChatServer
         else if(user.state.equals("INSIDE")){
           user.s.getChannel().write(charset.encode("OK"));
           for(Client otherUsr: clients){
-            if(otherUsr.room == user.room){ //users inside old room
+            if(otherUsr.room.equals(user.room)){ //users inside old room
               otherUsr.s.getChannel().write(charset.encode("LEFT "+ user.nick));
             }
-            else if(otherUsr.room == words[1]){ //users inside new room
+            else if(otherUsr.room.equals(words[1])){ //users inside new room
               otherUsr.s.getChannel().write(charset.encode("JOINED "+ user.nick));
             }
           }
@@ -216,14 +218,14 @@ public class ChatServer
       default:
         if(words[0].charAt(0)=='/'){
           for(Client curClient: clients){
-            if(curClient.room == user.room){
+            if(curClient.room.equals(user.room)){
               curClient.s.getChannel().write(charset.encode("MESSAGE "+user.nick+" "+text.substring(1)));
             }
           }
         }
         else{
           for(Client curClient: clients){
-            if(curClient.room == user.room){
+            if(curClient.room.equals(user.room)){
               curClient.s.getChannel().write(charset.encode("MESSAGE "+user.nick+" "+text));
             }
           }
@@ -242,7 +244,7 @@ public class ChatServer
 
   static private Client getUser( Socket s ){
     for(Client user: clients){
-      if(user.s == s) return user;
+      if(user.s.equals(s)) return user;
     }
     return null;
   }
