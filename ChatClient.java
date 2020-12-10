@@ -88,9 +88,14 @@ public class ChatClient{
       public void run(){
         try{
           bufferRead.clear();
-          sc.read(bufferRead);
+          int closed = sc.read(bufferRead);
           bufferRead.flip();
           String message = decoder.decode(bufferRead).toString();
+          //System.out.println(message);
+          if(message.equals("BYE") || closed == -1){
+            sc.socket().close();
+            sc.close();
+          }
           printMessage(message+"\n");
         }
         catch( IOException ie ) {
@@ -101,7 +106,14 @@ public class ChatClient{
 
     public class WriteThread implements Runnable{
       public void run(){
-
+        if(!(bufferWrite == null || bufferWrite.remaining()==0)){ //buffer is not empty
+          try{
+            sc.write(bufferWrite);
+            bufferWrite.flip();
+          } catch ( IOException ie ){
+            System.err.println( ie );
+          }
+        }
       }
     }
 
@@ -109,32 +121,24 @@ public class ChatClient{
     // na caixa de entrada
     public void newMessage(String message) throws IOException {
       // PREENCHER AQUI com código que envia a mensagem ao servidor
-      try {
-        bufferWrite.clear();
-        String[] strs = message.split(" ",0);
-        if(escape(strs[0]) == 1) bufferWrite = charset.encode("/"+message+"\n");
-        else bufferWrite = charset.encode(message+"\n");
-        sc.write(bufferWrite);
-        bufferWrite.flip();
-      } catch( IOException ie ) {
-        System.err.println( ie );
-      }
+      if(message.isEmpty()) return;
+      bufferWrite.clear();
+      String[] strs = message.split(" ",0);
+      if(escape(strs[0]) == 1) bufferWrite = charset.encode("/"+message+"\n");
+      else bufferWrite = charset.encode(message+"\n");
+      write.run();
     }
 
 
     // Método principal do objecto
     public void run() throws IOException {
       // PREENCHER AQUI
-      // try {
-      while(true){
+      while(!sc.socket().isClosed()){
         read.run();
-        write.run();
       }
-      // } catch( IOException ie ) {
-      //  System.err.println( ie );
-      //}
     }
 
+    //detect if is command, string or string with "/" first
     static private int escape (String cmd){
       switch(cmd){
         case "/nick": return 0;

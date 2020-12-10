@@ -5,8 +5,8 @@ import java.nio.channels.*;
 import java.nio.charset.*;
 import java.util.*;
 
-public class ChatServer
-{
+public class ChatServer {
+
   // A pre-allocated buffer for the received data
   static private final ByteBuffer buffer = ByteBuffer.allocate( 16384 );
 
@@ -92,10 +92,15 @@ public class ChatServer
               // and close it
               if (!ok) {
                 key.cancel();
-
+                Client user = getUser(sc.socket());
                 Socket s = null;
                 try {
                   s = sc.socket();
+                  for(Client otherUsr: clients){
+                    if(otherUsr.room.equals(user.room) && !otherUsr.nick.equals(user.nick)){
+                      otherUsr.s.getChannel().write(charset.encode("LEFT "+ user.nick));
+                    }
+                  }
                   remove_user(s);
                   System.out.println( "Closing connection to "+s );
                   s.close();
@@ -120,7 +125,6 @@ public class ChatServer
           }
         }
         // We remove the selected keys, because we've dealt with them.
-        //clients.clear();
         keys.clear();
       }
     } catch( IOException ie ) {
@@ -139,30 +143,40 @@ public class ChatServer
     if (buffer.limit()==0) {
       return false;
     }
-
     // Decode and print the message
     String message = decoder.decode(buffer).toString();
+    if(message.equals("\n")) return true;
+    Client user = getUser(sc.socket());
+    int i = 0;
+    message = message.replaceAll("<CTRL-D>","").replaceAll("<ENTER>",""); // filter ctrl and enter
+
     String[] bufferMessages = message.split("\n", 0);
     String tempmessage = bufferMessages[0].trim();
 
-    System.out.println(tempmessage);
-
-    Client user = getUser(sc.socket());
-    if(user != null) processString(tempmessage,user);
-
+    while(i<bufferMessages.length){
+      tempmessage = bufferMessages[i].trim();
+      if(user != null) processString(tempmessage,user);
+      i++;
+    }
     return true;
   }
+
   static void processString(String text, Client user) throws IOException{
     String[] words = text.split(" ", 0);
     String fstWord = words[0];
 
     switch(fstWord){
       case "/nick":
+        //System.out.println(words[1]);
+        if(words.length != 2){ // nick without argument
+          user.s.getChannel().write(charset.encode("ERROR"));
+          break;
+        }
         if(user.state.equals("INIT") && nickAvailable(words[1])){
           user.s.getChannel().write(charset.encode("OK"));
           user.setState("OUTSIDE");
           user.nick = words[1];
-          System.out.println("nn:"+user.state);
+          //System.out.println("nn:"+user.state);
         }
         else if(user.state.equals("INIT") && !nickAvailable(words[1])){
           user.s.getChannel().write(charset.encode("ERROR"));
@@ -186,18 +200,20 @@ public class ChatServer
         else if(user.state.equals("INSIDE") && !nickAvailable(words[1])){
           user.s.getChannel().write(charset.encode("ERROR"));
         }
-        else{ // nick without argument
-          user.s.getChannel().write(charset.encode("ERROR"));
-        }
         break;
 
       case "/join":
-        if(user.state.equals("INIT")){
+        if(words.length != 2){ // nick without argument
           user.s.getChannel().write(charset.encode("ERROR"));
+          break;
+        }
+        if(user.state.equals("INIT")){ //state=init (no nick)
+          user.s.getChannel().write(charset.encode("ERROR"));
+          break;
         }
         else if(user.state.equals("OUTSIDE")){
           user.room = words[1];
-           user.setState("INSIDE");
+          user.setState("INSIDE");
           user.s.getChannel().write(charset.encode("OK"));
           for(Client otherUsr: clients){
             if(otherUsr.room.equals(user.room) && !otherUsr.equals(user)){ //inside same room
@@ -208,7 +224,7 @@ public class ChatServer
         else if(user.state.equals("INSIDE")){
           user.s.getChannel().write(charset.encode("OK"));
           for(Client otherUsr: clients){
-            if(otherUsr.room.equals(user.room)){ //users inside old room
+            if(otherUsr.room.equals(user.room) && !otherUsr.nick.equals(user.nick)){ //users inside old room
               otherUsr.s.getChannel().write(charset.encode("LEFT "+ user.nick));
             }
             else if(otherUsr.room.equals(words[1])){ //users inside new room
@@ -218,49 +234,75 @@ public class ChatServer
           user.room = words[1];
         }
         break;
-        
+
       case "/leave":
-       if(user.state.equals("INIT")){
-         user.s.getChannel().write(charset.encode("ERROR"));
-       }
-       else if(user.state.equals("OUTSIDE")){
-         user.s.getChannel().write(charset.encode("ERROR"));
-       }
-       else if(user.state.equals("INSIDE")){
-         user.s.getChannel().write(charset.encode("OK"));
-         user.setState("OUTSIDE");
-         String oldRoom = user.room;
-         user.room = "none";
-         for(Client otherUsr: clients){
-           if(otherUsr.room.equals(oldRoom)){
-             otherUsr.s.getChannel().write(charset.encode("LEFT "+ user.nick));
-           }
-         }
+        if(words.length != 1){
+          user.s.getChannel().write(charset.encode("ERROR"));
+          break;
+        }
+        if(user.state.equals("INIT")){  //room = "none"
+          user.s.getChannel().write(charset.encode("ERROR"));
+        }
+        else if(user.state.equals("OUTSIDE")){ //room = "none"
+          user.s.getChannel().write(charset.encode("ERROR"));
+        }
+        else if(user.state.equals("INSIDE")){
+          user.s.getChannel().write(charset.encode("OK"));
+          user.setState("OUTSIDE");
+          String oldRoom = user.room;
+          user.room = "none";
+          for(Client otherUsr: clients){
+            if(otherUsr.room.equals(oldRoom)){
+              otherUsr.s.getChannel().write(charset.encode("LEFT "+ user.nick));
+            }
+          }
         }
         break;
 
-      case "/bye": break;
+      case "/bye":
+        if(words.length != 1){
+          user.s.getChannel().write(charset.encode("ERROR"));
+          break;
+        }
+        if(user.state.equals("INSIDE")){
+          user.setState("OUTSIDE");
+          String oldRoom = user.room;
+          user.room = "none";
+          for(Client otherUsr: clients){
+            if(otherUsr.room.equals(oldRoom)){
+              otherUsr.s.getChannel().write(charset.encode("LEFT "+ user.nick));
+            }
+          }
+        }
+        user.s.getChannel().write(charset.encode("BYE"));
+        System.out.println( "Closing connection to "+user.s );
+        remove_user(user.s);
+        user.s.close();
+        break;
       default:
-        if(words[0].charAt(0)=='/'){
-          for(Client curClient: clients){
-            if(curClient.room.equals(user.room)){
-              curClient.s.getChannel().write(charset.encode("MESSAGE "+user.nick+" "+text.substring(1)));
+        if(user.state.equals("INSIDE")){
+          if(words[0].charAt(0)=='/'){
+            for(Client curClient: clients){
+              if(curClient.room.equals(user.room)){
+                curClient.s.getChannel().write(charset.encode("MESSAGE "+user.nick+" "+text.substring(1)));
+              }
+            }
+          }
+          else{
+            for(Client curClient: clients){
+              if(curClient.room.equals(user.room)){
+                curClient.s.getChannel().write(charset.encode("MESSAGE "+user.nick+" "+text));
+              }
             }
           }
         }
-        else{
-          for(Client curClient: clients){
-            if(curClient.room.equals(user.room)){
-              curClient.s.getChannel().write(charset.encode("MESSAGE "+user.nick+" "+text));
-            }
-          }
-        }
+        else user.s.getChannel().write(charset.encode("ERROR")); // send message when state != INSIDE
         break;  //not a command but with "/"
     }
   }
 
   static private boolean nickAvailable(String nickname){
-    System.out.println("nickAvailable:"+nickname);
+    //System.out.println("nickAvailable:"+nickname);
     for(Client curClient: clients){
       if(curClient.nick.equals(nickname)) return false;
     }
