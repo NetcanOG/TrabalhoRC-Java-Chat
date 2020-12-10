@@ -145,6 +145,7 @@ public class ChatClient{
         case "/join": return 0;
         case "/leave": return 0;
         case "/bye": return 0;
+        case "/priv": return 0;
         default:
           if(cmd.charAt(0)=='/') return 1;  //not a command but with "/"
           return 0;                         //string

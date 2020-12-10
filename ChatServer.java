@@ -279,6 +279,27 @@ public class ChatServer {
         remove_user(user.s);
         user.s.close();
         break;
+      case "/priv":
+        if(user.state.equals("INSIDE")){
+          if( || !nickAvailable(words[1])){        // if nickavailable = true =>
+            user.s.getChannel().write(charset.encode("ERROR"));     //user not found with that nick
+            break;
+          }
+          else{
+            for(Client otherUsr: clients){
+              if(otherUsr.room.equals(user.room) && otherUsr.nick.equals(words[1])){
+                String[] message = text.split(" ",3);
+                otherUsr.s.getChannel().write(charset.encode("PRIVATE "+user.nick+" "+message[2]));
+                user.s.getChannel().write(charset.encode("OK"));
+                break;
+              }
+            }
+            user.s.getChannel().write(charset.encode("ERROR")); //if not in same room but user exist
+          }
+        }
+        else{ //not inside room
+          user.s.getChannel().write(charset.encode("ERROR"));
+        }
       default:
         if(user.state.equals("INSIDE")){
           if(words[0].charAt(0)=='/'){
