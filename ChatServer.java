@@ -177,7 +177,7 @@ public class ChatServer
         else if(user.state.equals("INSIDE") && nickAvailable(words[1])){
           user.s.getChannel().write(charset.encode("OK"));
           for(Client otherUsr: clients){
-            if(otherUsr.room == user.room){ //inside same room
+            if(otherUsr.room.equals(user.room) && !otherUsr.nick.equals(user.nick)){ //all other users inside same room
               otherUsr.s.getChannel().write(charset.encode("NEWNICK "+ user.nick+" "+words[1]));
             }
           }
@@ -190,12 +190,14 @@ public class ChatServer
           user.s.getChannel().write(charset.encode("ERROR"));
         }
         break;
+
       case "/join":
         if(user.state.equals("INIT")){
           user.s.getChannel().write(charset.encode("ERROR"));
         }
         else if(user.state.equals("OUTSIDE")){
           user.room = words[1];
+           user.setState("INSIDE");
           user.s.getChannel().write(charset.encode("OK"));
           for(Client otherUsr: clients){
             if(otherUsr.room.equals(user.room) && !otherUsr.equals(user)){ //inside same room
@@ -216,7 +218,27 @@ public class ChatServer
           user.room = words[1];
         }
         break;
-      case "/leave": break;
+        
+      case "/leave":
+       if(user.state.equals("INIT")){
+         user.s.getChannel().write(charset.encode("ERROR"));
+       }
+       else if(user.state.equals("OUTSIDE")){
+         user.s.getChannel().write(charset.encode("ERROR"));
+       }
+       else if(user.state.equals("INSIDE")){
+         user.s.getChannel().write(charset.encode("OK"));
+         user.setState("OUTSIDE");
+         String oldRoom = user.room;
+         user.room = "none";
+         for(Client otherUsr: clients){
+           if(otherUsr.room.equals(oldRoom)){
+             otherUsr.s.getChannel().write(charset.encode("LEFT "+ user.nick));
+           }
+         }
+        }
+        break;
+
       case "/bye": break;
       default:
         if(words[0].charAt(0)=='/'){
