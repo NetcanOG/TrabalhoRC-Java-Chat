@@ -191,7 +191,10 @@ public class ChatServer
         }
         break;
       case "/join":
-        if(user.state.equals("OUTSIDE")){
+        if(user.state.equals("INIT")){
+          user.s.getChannel().write(charset.encode("ERROR"));
+        }
+        else if(user.state.equals("OUTSIDE")){
           user.room = words[1];
           user.s.getChannel().write(charset.encode("OK"));
           for(Client otherUsr: clients){
