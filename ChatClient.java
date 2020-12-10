@@ -96,7 +96,34 @@ public class ChatClient{
             sc.socket().close();
             sc.close();
           }
-          printMessage(message+"\n");
+          
+          String[] rcvMessages = message.split(" ", 3);
+
+          if(rcvMessages.length > 1){
+            switch(rcvMessages[0]){
+              case "MESSAGE":
+              printMessage(rcvMessages[1]+": "+rcvMessages[2]+"\n");
+              break;
+              
+              case "NEWNICK":
+              printMessage(rcvMessages[1]+" mudou de nome para "+rcvMessages[2]+"\n");
+              break;
+              
+              case "JOINED":
+              printMessage(rcvMessages[1]+" entrou na sala\n");
+              break;
+              
+              case "LEFT":
+              printMessage(rcvMessages[1]+" saiu da sala\n");
+              break;
+
+              case "PRIVATE":
+              printMessage("Mensagem privada de "+rcvMessages[1]+": "+rcvMessages[2]+"\n");
+              break;
+            }
+          }else{
+            printMessage(message+"\n");
+          }
         }
         catch( IOException ie ) {
           System.err.println( ie );
